@@ -1,0 +1,1888 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serasa - Consulte seu CPF</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 420px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background: white;
+            box-shadow: 0 0 30px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0066cc 0%, #004499 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            right: 0;
+            height: 20px;
+            background: linear-gradient(135deg, #0066cc 0%, #004499 100%);
+            border-radius: 0 0 50% 50%;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .tagline {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .screen {
+            display: none;
+            padding: 30px 20px;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        /* Telas especiais com fundo escuro */
+        .screen.dark {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #00ff41;
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        .screen.dark .container {
+            background: transparent;
+            box-shadow: none;
+        }
+
+        /* Tela de score baixo - estilo Serasa real */
+        .screen.pink-bg {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd9 100%);
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        .screen.pink-bg .container {
+            background: transparent;
+            box-shadow: none;
+        }
+
+        @keyframes slideIn {
+            from { 
+                opacity: 0; 
+                transform: translateX(20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateX(0); 
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid #f0f0f0;
+        }
+
+        .card.dark {
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid #00ff41;
+            box-shadow: 0 0 30px rgba(0, 255, 65, 0.1);
+            color: #00ff41;
+        }
+
+        .title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .subtitle {
+            font-size: 0.95rem;
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 24px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            background: #fafbfc;
+            color: #333;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #0066cc;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0066cc 0%, #004499 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 102, 204, 0.3);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 102, 204, 0.4);
+        }
+
+        .btn-option {
+            background: white;
+            color: #333;
+            border: 2px solid #e1e5e9;
+            text-align: left;
+            padding: 18px 20px;
+        }
+
+        .btn-option:hover:not(:disabled) {
+            border-color: #0066cc;
+            background: #f8f9ff;
+            transform: translateY(-1px);
+        }
+
+        .btn-option.selected {
+            border-color: #0066cc;
+            background: #f0f7ff;
+            color: #0066cc;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            animation: pulse 2s infinite;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+            color: white;
+            animation: pulse 2s infinite;
+            font-size: 1.1rem;
+        }
+
+        .btn-optimize {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            font-size: 1.2rem;
+            padding: 20px;
+            animation: glow 2s infinite alternate;
+            box-shadow: 0 0 30px rgba(255, 107, 53, 0.4);
+        }
+
+        /* Botão principal melhorado */
+        .btn-unlock {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            font-size: 1.3rem;
+            font-weight: 700;
+            padding: 22px;
+            animation: pulse-glow 2s infinite;
+            box-shadow: 0 0 40px rgba(255, 107, 53, 0.5);
+            border: 3px solid #ff8c42;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        @keyframes pulse-glow {
+            0% { 
+                transform: scale(1);
+                box-shadow: 0 0 40px rgba(255, 107, 53, 0.5);
+            }
+            50% { 
+                transform: scale(1.02);
+                box-shadow: 0 0 50px rgba(255, 107, 53, 0.7);
+            }
+            100% { 
+                transform: scale(1);
+                box-shadow: 0 0 40px rgba(255, 107, 53, 0.5);
+            }
+        }
+
+        @keyframes glow {
+            from { 
+                box-shadow: 0 0 30px rgba(255, 107, 53, 0.4);
+                transform: scale(1);
+            }
+            to { 
+                box-shadow: 0 0 40px rgba(255, 107, 53, 0.6);
+                transform: scale(1.02);
+            }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        .question-card {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .question-number {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: #0066cc;
+            color: white;
+            border-radius: 50%;
+            line-height: 30px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 25px;
+        }
+
+        .feedback {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-left: 4px solid #0066cc;
+            padding: 16px;
+            margin: 20px 0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            color: #1565c0;
+        }
+
+        .feedback.success {
+            background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+            border-left-color: #28a745;
+            color: #2e7d32;
+        }
+
+        .feedback.warning {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffcc02 100%);
+            border-left-color: #ff9800;
+            color: #ef6c00;
+        }
+
+        .feedback.error {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border-left-color: #dc3545;
+            color: #c62828;
+        }
+
+        /* Score baixo - estilo Serasa real */
+        .real-score-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .warning-triangle {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #ffc107 0%, #ff8f00 100%);
+            border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 40px;
+            position: relative;
+            box-shadow: 0 8px 25px rgba(255, 193, 7, 0.3);
+        }
+
+        .warning-triangle::before {
+            content: '!';
+            color: white;
+            font-size: 2.5rem;
+            font-weight: bold;
+            transform: rotate(45deg);
+        }
+
+        .real-score-number {
+            font-size: 6rem;
+            font-weight: bold;
+            color: #e53e3e;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(229, 62, 62, 0.2);
+            line-height: 1;
+        }
+
+        .real-score-title {
+            font-size: 1.8rem;
+            color: #744210;
+            font-weight: 600;
+            margin-bottom: 30px;
+        }
+
+        .real-score-description {
+            font-size: 1.1rem;
+            color: #8b4513;
+            line-height: 1.6;
+            margin-bottom: 50px;
+            max-width: 320px;
+        }
+
+        .real-score-description .highlight {
+            color: #d69e2e;
+            font-weight: 600;
+        }
+
+        /* Terminal hacker style */
+        .terminal {
+            background: #000;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+            height: 350px;
+            overflow-y: auto;
+            border: 1px solid #00ff41;
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
+            scroll-behavior: smooth;
+        }
+
+        .terminal-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+        }
+
+        .terminal-dots {
+            display: flex;
+            gap: 6px;
+            margin-right: 15px;
+        }
+
+        .terminal-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .terminal-dot.red { background: #ff5f56; }
+        .terminal-dot.yellow { background: #ffbd2e; }
+        .terminal-dot.green { background: #27ca3f; }
+
+        .terminal-title {
+            color: #00ff41;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .terminal-line {
+            margin: 8px 0;
+            opacity: 0;
+            animation: typewriter 0.4s ease-in forwards;
+            position: relative;
+        }
+
+        .terminal-line::before {
+            content: '> ';
+            color: #00ff41;
+            font-weight: bold;
+        }
+
+        .terminal-line.info { color: #00bfff; }
+        .terminal-line.success { color: #00ff41; }
+        .terminal-line.warning { color: #ffaa00; }
+        .terminal-line.error { color: #ff4444; }
+        .terminal-line.special { 
+            color: #ff00ff; 
+            font-weight: bold;
+            animation: typewriter 0.4s ease-in forwards, glow-text 2s infinite alternate;
+        }
+
+        @keyframes typewriter {
+            from { 
+                opacity: 0; 
+                transform: translateX(-10px);
+            }
+            to { 
+                opacity: 1; 
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes glow-text {
+            from { text-shadow: 0 0 5px currentColor; }
+            to { text-shadow: 0 0 15px currentColor; }
+        }
+
+        /* Score circular - estilo real */
+        .score-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .score-gauge {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+
+        .score-gauge svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .score-gauge .gauge-bg {
+            fill: none;
+            stroke: #e2e8f0;
+            stroke-width: 12;
+        }
+
+        .score-gauge .gauge-fill {
+            fill: none;
+            stroke-width: 12;
+            stroke-linecap: round;
+            transition: stroke-dasharray 2s ease-out;
+        }
+
+        .score-inner-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .score-number {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: #333;
+            line-height: 1;
+        }
+
+        .score-max {
+            font-size: 1rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .score-status {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+
+        .score-status.baixo { color: #dc3545; }
+        .score-status.regular { color: #ffc107; }
+        .score-status.bom { color: #28a745; }
+        .score-status.muito-bom { color: #17a2b8; }
+
+        /* 1. Linha do Tempo de Aumento do Score */
+        .score-timeline {
+            background: linear-gradient(135deg, #f8f9ff 0%, #e3f2fd 100%);
+            border: 2px solid #2196f3;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .timeline-header {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1565c0;
+            margin-bottom: 15px;
+        }
+
+        .timeline-evolution {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 15px 0;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .timeline-before {
+            color: #dc3545;
+            background: #ffebee;
+            padding: 8px 12px;
+            border-radius: 8px;
+        }
+
+        .timeline-arrow {
+            margin: 0 15px;
+            color: #2196f3;
+            font-size: 1.5rem;
+        }
+
+        .timeline-after {
+            color: #28a745;
+            background: #e8f5e8;
+            padding: 8px 12px;
+            border-radius: 8px;
+        }
+
+        .timeline-status {
+            background: #fff3e0;
+            border: 1px solid #ff9800;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 10px 0;
+            color: #e65100;
+            font-weight: 500;
+        }
+
+        .timeline-time {
+            font-size: 0.9rem;
+            color: #666;
+            font-style: italic;
+        }
+
+        /* 2. Selo de Validação Técnica */
+        .validation-seal {
+            background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+            border: 2px solid #4caf50;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            text-align: left;
+        }
+
+        .validation-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .validation-content {
+            flex: 1;
+        }
+
+        .validation-title {
+            font-weight: 600;
+            color: #2e7d32;
+            font-size: 0.95rem;
+            margin-bottom: 5px;
+        }
+
+        .validation-subtitle {
+            font-size: 0.85rem;
+            color: #388e3c;
+            line-height: 1.3;
+        }
+
+        /* 3. Depoimentos Visuais Curtos */
+        .testimonials-section {
+            margin: 20px 0;
+        }
+
+        .testimonials-header {
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .testimonial-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 10px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid #4caf50;
+        }
+
+        .testimonial-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .testimonial-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff6b9d, #c44569);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 12px;
+            font-size: 0.9rem;
+        }
+
+        .testimonial-info {
+            flex: 1;
+        }
+
+        .testimonial-name {
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: #333;
+        }
+
+        .testimonial-date {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .testimonial-text {
+            font-size: 0.9rem;
+            line-height: 1.4;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .testimonial-rating {
+            font-size: 0.8rem;
+            color: #ffc107;
+        }
+
+        /* 4. Bloco de Benefícios Pós-Pagamento */
+        .post-payment-benefits {
+            background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+            border: 2px solid #ffc107;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .benefits-header {
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #e65100;
+            margin-bottom: 15px;
+        }
+
+        .benefit-item {
+            display: flex;
+            align-items: center;
+            margin: 12px 0;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+        }
+
+        .benefit-icon {
+            font-size: 1.3rem;
+            margin-right: 12px;
+            width: 30px;
+            text-align: center;
+        }
+
+        .benefit-text {
+            flex: 1;
+            font-size: 0.9rem;
+            color: #e65100;
+            font-weight: 500;
+        }
+
+        /* 5. Contador de Expiração */
+        .expiration-counter {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border: 2px solid #ff9800;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: center;
+            animation: warning-pulse 3s infinite;
+        }
+
+        @keyframes warning-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.01); }
+        }
+
+        .counter-warning {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #e65100;
+            margin-bottom: 10px;
+        }
+
+        .counter-time {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #d84315;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 10px;
+        }
+
+        .counter-subtitle {
+            font-size: 0.9rem;
+            color: #bf360c;
+            line-height: 1.3;
+        }
+
+        /* 6. Mensagem de Bloqueio Técnica */
+        .technical-block {
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+            border: 2px solid #9c27b0;
+            border-radius: 12px;
+            padding: 18px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .technical-block-text {
+            font-size: 1rem;
+            color: #6a1b9a;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        /* Elementos de vendas melhorados */
+        .sales-element {
+            background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+            border: 2px solid #ffc107;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sales-element::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .urgency-banner {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border: 2px solid #f44336;
+            color: #c62828;
+            animation: urgency-pulse 2s infinite;
+        }
+
+        @keyframes urgency-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .social-proof {
+            background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+            border: 2px solid #4caf50;
+            color: #2e7d32;
+        }
+
+        .guarantee {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border: 2px solid #2196f3;
+            color: #1565c0;
+        }
+
+        /* Comentários de redes sociais */
+        .social-comment {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 10px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid #1877f2;
+            text-align: left;
+        }
+
+        .social-comment.instagram {
+            border-left-color: #e4405f;
+        }
+
+        .comment-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .comment-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff6b9d, #c44569);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .comment-info {
+            flex: 1;
+        }
+
+        .comment-name {
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: #333;
+        }
+
+        .comment-time {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .comment-text {
+            font-size: 0.9rem;
+            line-height: 1.4;
+            color: #333;
+        }
+
+        .comment-likes {
+            margin-top: 8px;
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        /* Dores específicas */
+        .pain-points {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border: 2px solid #ff9800;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .pain-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+        }
+
+        .pain-icon {
+            font-size: 1.5rem;
+            margin-right: 12px;
+        }
+
+        .pain-text {
+            flex: 1;
+            font-size: 0.9rem;
+            color: #e65100;
+            font-weight: 500;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-item {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #0066cc;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .progress-container {
+            margin: 30px 0;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #e9ecef;
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #dc3545 0%, #ffc107 50%, #28a745 100%);
+            width: 0%;
+            transition: width 1s ease-out;
+            border-radius: 6px;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .alert {
+            background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
+            border: 2px solid #fc8181;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .alert-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .alert h3 {
+            color: #c53030;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .alert p {
+            color: #744210;
+            margin-bottom: 20px;
+        }
+
+        .success-card {
+            background: linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%);
+            border: 2px solid #68d391;
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .success-icon {
+            font-size: 4rem;
+            color: #38a169;
+            margin-bottom: 15px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .chart-container {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .chart {
+            display: flex;
+            justify-content: space-around;
+            align-items: end;
+            height: 120px;
+            margin: 20px 0;
+        }
+
+        .bar {
+            width: 60px;
+            background: linear-gradient(to top, #0066cc, #00bfff);
+            border-radius: 6px 6px 0 0;
+            position: relative;
+            animation: growBar 2s ease-out;
+            display: flex;
+            align-items: end;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.8rem;
+            padding-bottom: 8px;
+        }
+
+        @keyframes growBar {
+            from { height: 0; }
+            to { height: var(--height); }
+        }
+
+        .bar-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .loading-dots {
+            display: inline-block;
+        }
+
+        .loading-dots::after {
+            content: '';
+            animation: dots 2s infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: ''; }
+            40% { content: '.'; }
+            60% { content: '..'; }
+            80%, 100% { content: '...'; }
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .step {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #e1e5e9;
+            margin: 0 6px;
+            transition: all 0.3s ease;
+        }
+
+        .step.active {
+            background: #0066cc;
+            transform: scale(1.2);
+        }
+
+        .step.completed {
+            background: #28a745;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                max-width: 100%;
+            }
+            
+            .screen {
+                padding: 20px 15px;
+            }
+            
+            .real-score-number {
+                font-size: 5rem;
+            }
+
+            .score-gauge {
+                width: 160px;
+                height: 160px;
+            }
+            
+            .score-number {
+                font-size: 2.8rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .timeline-evolution {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .timeline-arrow {
+                transform: rotate(90deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">Serasa</div>
+            <div class="tagline">Consulte seu CPF gratuitamente</div>
+        </div>
+
+        <!-- Tela 1: Introdução -->
+        <div id="screen1" class="screen active">
+            <div class="card">
+                <h1 class="title">Consulte seu Score</h1>
+                <p class="subtitle">Descubra sua pontuação de crédito e como melhorá-la</p>
+                
+                <div class="input-group">
+                    <label for="cpf">CPF</label>
+                    <input type="text" id="cpf" placeholder="000.000.000-00" maxlength="14">
+                </div>
+                
+                <button class="btn btn-primary" onclick="startEvaluation()">
+                    Consultar CPF Grátis
+                </button>
+                
+                <div style="text-align: center; margin-top: 20px; font-size: 0.8rem; color: #666;">
+                    🔒 Consulta 100% segura e gratuita
+                </div>
+            </div>
+        </div>
+
+        <!-- Tela 2: Perguntas -->
+        <div id="screen2" class="screen">
+            <div class="step-indicator" id="step-indicator">
+                <div class="step active"></div>
+                <div class="step"></div>
+                <div class="step"></div>
+                <div class="step"></div>
+            </div>
+            
+            <div class="card">
+                <div class="question-card">
+                    <div class="question-number" id="question-number">1</div>
+                    <div class="question-text" id="current-question"></div>
+                </div>
+                
+                <div id="options-container"></div>
+                <div id="feedback" class="feedback" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- Tela 2a: Score Baixo - Estilo Serasa Real -->
+        <div id="screen2a" class="screen pink-bg">
+            <div class="real-score-container">
+                <div class="warning-triangle"></div>
+                
+                <div class="real-score-number">278</div>
+                
+                <div class="real-score-title">Seu Score Atual</div>
+                
+                <div class="real-score-description">
+                    Seu score está <span class="highlight">muito baixo</span> e pode estar limitando suas oportunidades de crédito. Mas temos uma boa notícia: podemos otimizar seu perfil agora mesmo!
+                </div>
+                
+                <button class="btn btn-optimize" onclick="startOptimization()">
+                    🔧 Otimizar meu Score
+                </button>
+                
+                <div style="text-align: center; margin-top: 20px; font-size: 0.85rem; color: #8b4513;">
+                    💡 Processo 100% automatizado e seguro
+                </div>
+            </div>
+        </div>
+
+        <!-- Tela 2b: Terminal de Otimização -->
+        <div id="screen2b" class="screen dark">
+            <div style="padding: 30px 20px;">
+                <div class="card dark">
+                    <div class="terminal" id="optimization-terminal-container">
+                        <div class="terminal-header">
+                            <div class="terminal-dots">
+                                <div class="terminal-dot red"></div>
+                                <div class="terminal-dot yellow"></div>
+                                <div class="terminal-dot green"></div>
+                            </div>
+                            <div class="terminal-title">SERASA OPTIMIZATION SYSTEM v2.1</div>
+                        </div>
+                        <div id="optimization-terminal">
+                            <div class="terminal-line info">Iniciando sistema de otimização...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tela 3: Score Aumentado com Elementos de Vendas Melhorados -->
+        <div id="screen3" class="screen">
+            <div class="card">
+                <h2 class="title">🎉 Seu Score foi Aumentado!</h2>
+                <p class="subtitle">Veja sua nova pontuação otimizada</p>
+                
+                <div class="score-container">
+                    <div class="score-gauge">
+                        <svg viewBox="0 0 200 200">
+                            <circle class="gauge-bg" cx="100" cy="100" r="85"></circle>
+                            <circle class="gauge-fill" cx="100" cy="100" r="85" 
+                                    id="score-circle"
+                                    stroke="#dc3545"
+                                    stroke-dasharray="0 534"
+                                    stroke-dashoffset="0">
+                            </circle>
+                        </svg>
+                        <div class="score-inner-content">
+                            <div class="score-number" id="current-score">278</div>
+                            <div class="score-max">de 1000</div>
+                        </div>
+                    </div>
+                    <div class="score-status baixo" id="score-status">Score Baixo</div>
+                </div>
+
+                <!-- 1. Linha do Tempo de Aumento do Score -->
+                <div class="score-timeline">
+                    <div class="timeline-header">📊 Evolução do Seu Score</div>
+                    <div class="timeline-evolution">
+                        <div class="timeline-before">Antes: 278</div>
+                        <div class="timeline-arrow">→</div>
+                        <div class="timeline-after">Agora: 901</div>
+                    </div>
+                    <div class="timeline-status">
+                        ⏳ Estágio: Validação Pendente
+                    </div>
+                    <div class="timeline-time">
+                        Tempo estimado: 3 a 7 dias úteis após confirmação
+                    </div>
+                </div>
+
+                <!-- 2. Selo de Validação Técnica -->
+                <div class="validation-seal">
+                    <div class="validation-icon">🛡️</div>
+                    <div class="validation-content">
+                        <div class="validation-title">✅ Análise Validada por IA de Crédito</div>
+                        <div class="validation-subtitle">🔒 Simulação baseada em dados comportamentais e perfil financeiro</div>
+                    </div>
+                </div>
+                
+                <div class="progress-container">
+                    <div class="progress-header">
+                        <span>Otimizando perfil...</span>
+                        <span id="progress-percent">5%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                </div>
+                
+                <div id="score-messages"></div>
+
+                <!-- 7. Mensagem de Bloqueio Técnica -->
+                <div class="technical-block">
+                    <div class="technical-block-text">
+                        🔒 Seu novo score está aguardando liberação final nos servidores do Serasa. Confirme a operação para validar.
+                    </div>
+                </div>
+
+                <div id="unlock-alert" class="alert" style="display: none;">
+                    <div class="alert-icon">🔐</div>
+                    <h3>Desbloqueio Final Necessário</h3>
+                    <p><strong>Seu novo score (926) está pronto!</strong> Mas precisa ser liberado no sistema para aparecer nos bancos.</p>
+                    <button class="btn btn-unlock" onclick="finalizeUnlock()">
+                        🔓 ATUALIZAR MEU SCORE AGORA
+                        <div style="font-size: 0.9rem; margin-top: 5px;">🕒 Seu novo score pode ser liberado ainda hoje por R$ 14,97</div>
+                    </button>
+                </div>
+
+                <!-- Dores específicas -->
+                <div class="pain-points">
+                    <h3 style="text-align: center; margin-bottom: 15px; color: #e65100;">❌ O que você ESTÁ PERDENDO com score baixo:</h3>
+                    <div class="pain-item">
+                        <div class="pain-icon">🚗</div>
+                        <div class="pain-text">Financiamento de carro NEGADO ou com juros altíssimos</div>
+                    </div>
+                    <div class="pain-item">
+                        <div class="pain-icon">💳</div>
+                        <div class="pain-text">Cartão de crédito RECUSADO ou limite baixíssimo</div>
+                    </div>
+                    <div class="pain-item">
+                        <div class="pain-icon">🏠</div>
+                        <div class="pain-text">Financiamento imobiliário IMPOSSÍVEL de conseguir</div>
+                    </div>
+                    <div class="pain-item">
+                        <div class="pain-icon">💰</div>
+                        <div class="pain-text">Empréstimos com juros ABUSIVOS (até 15% ao mês)</div>
+                    </div>
+                </div>
+
+                <!-- Benefícios específicos -->
+                <div class="social-proof sales-element">
+                    <h3>✅ O que você VAI CONSEGUIR com score alto:</h3>
+                    <div style="text-align: left; margin-top: 15px;">
+                        <p>🚗 <strong>Financiamento de carro</strong> aprovado na hora</p>
+                        <p>💳 <strong>Cartões premium</strong> com limite alto</p>
+                        <p>🏠 <strong>Financiamento imobiliário</strong> com juros baixos</p>
+                        <p>💰 <strong>Empréstimos</strong> com juros de apenas 2% ao mês</p>
+                        <p>📱 <strong>Conta digital</strong> sem anuidade</p>
+                    </div>
+                </div>
+
+                <!-- 6. Contador de Expiração da Simulação -->
+                <div class="expiration-counter">
+                    <div class="counter-warning">⚠️ Esta simulação expira em:</div>
+                    <div class="counter-time" id="expiration-timer">09:58</div>
+                    <div class="counter-subtitle">Seu perfil de crédito pode mudar se não for validado agora.</div>
+                </div>
+                
+                <!-- Urgência -->
+                <div class="urgency-banner sales-element">
+                    <h3>⏰ ÚLTIMAS HORAS!</h3>
+                    <p>Apenas <strong id="countdown">17</strong> pessoas conseguirão liberar o score hoje. <strong>Não seja mais uma vítima do score baixo!</strong></p>
+                </div>
+
+                <!-- 3. Depoimentos Visuais Curtos -->
+                <div class="testimonials-section">
+                    <div class="testimonials-header">💬 Depoimentos Recentes</div>
+                    
+                    <div class="testimonial-card">
+                        <div class="testimonial-header">
+                            <div class="testimonial-avatar">JC</div>
+                            <div class="testimonial-info">
+                                <div class="testimonial-name">Juliana C.</div>
+                                <div class="testimonial-date">03/06/2025</div>
+                            </div>
+                        </div>
+                        <div class="testimonial-text">Consegui meu cartão aprovado em 4 dias depois de pagar o desbloqueio!</div>
+                        <div class="testimonial-rating">⭐⭐⭐⭐⭐</div>
+                    </div>
+
+                    <div class="testimonial-card">
+                        <div class="testimonial-header">
+                            <div class="testimonial-avatar">RS</div>
+                            <div class="testimonial-info">
+                                <div class="testimonial-name">Roberto S.</div>
+                                <div class="testimonial-date">02/06/2025</div>
+                            </div>
+                        </div>
+                        <div class="testimonial-text">Score subiu de 298 para 834! Financiamento do carro aprovado no mesmo dia!</div>
+                        <div class="testimonial-rating">⭐⭐⭐⭐⭐</div>
+                    </div>
+
+                    <div class="testimonial-card">
+                        <div class="testimonial-header">
+                            <div class="testimonial-avatar">MF</div>
+                            <div class="testimonial-info">
+                                <div class="testimonial-name">Marina F.</div>
+                                <div class="testimonial-date">01/06/2025</div>
+                            </div>
+                        </div>
+                        <div class="testimonial-text">Incrível! Consegui empréstimo de R$ 20.000 com juros baixos após liberar!</div>
+                        <div class="testimonial-rating">⭐⭐⭐⭐⭐</div>
+                    </div>
+                </div>
+
+                <!-- Comentários de redes sociais -->
+                <div class="social-proof sales-element">
+                    <h3 style="margin-bottom: 15px;">💬 O que estão falando nas redes:</h3>
+                    
+                    <div class="social-comment">
+                        <div class="comment-header">
+                            <div class="comment-avatar">MC</div>
+                            <div class="comment-info">
+                                <div class="comment-name">Mariana Costa</div>
+                                <div class="comment-time">2 horas atrás</div>
+                            </div>
+                        </div>
+                        <div class="comment-text">Gente, não acredito! Meu score subiu de 289 para 847 em 1 dia! Consegui aprovar meu cartão Nubank com limite de R$ 3.500! 😱🙏</div>
+                        <div class="comment-likes">❤️ 127 curtidas</div>
+                    </div>
+
+                    <div class="social-comment instagram">
+                        <div class="comment-header">
+                            <div class="comment-avatar">RS</div>
+                            <div class="comment-info">
+                                <div class="comment-name">Rafael Santos</div>
+                                <div class="comment-time">4 horas atrás</div>
+                            </div>
+                        </div>
+                        <div class="comment-text">Cara, funcionou mesmo! Score era 312, agora tá 789! Banco do Brasil aprovou meu financiamento do carro na hora! Valeu cada centavo! 🚗💪</div>
+                        <div class="comment-likes">❤️ 89 curtidas</div>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number">97%</div>
+                        <div class="stat-label">Aprovação Garantida</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">+156</div>
+                        <div class="stat-label">Pontos Médios</div>
+                    </div>
+                </div>
+
+                <!-- 4. Bloco de Benefícios Pós-Pagamento -->
+                <div class="post-payment-benefits">
+                    <div class="benefits-header">🎁 O que você recebe após o pagamento:</div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">📥</div>
+                        <div class="benefit-text">PDF com relatório visual do novo score</div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">📈</div>
+                        <div class="benefit-text">Simulação de crédito pré-aprovado</div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">🧠</div>
+                        <div class="benefit-text">Acesso a análise personalizada com IA</div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">🖨️</div>
+                        <div class="benefit-text">Certificado digital de score otimizado</div>
+                    </div>
+                </div>
+
+                <div class="guarantee sales-element">
+                    <h3>🛡️ GARANTIA BLINDADA</h3>
+                    <p><strong>Se seu score não aumentar em 24h, devolvemos 200% do seu dinheiro!</strong> Sem perguntas, sem enrolação.</p>
+                </div>
+
+                <div class="urgency-banner sales-element">
+                    <h3>🔥 ATENÇÃO: SISTEMA SOBRECARREGADO!</h3>
+                    <p>Muitas pessoas tentando liberar ao mesmo tempo. <strong>Garante sua vaga AGORA</strong> antes que o sistema trave!</p>
+                </div>
+
+                <!-- Segundo botão de compra melhorado -->
+                <button class="btn btn-unlock" onclick="finalizeUnlock()" style="margin-top: 20px;">
+                    🔓 ATUALIZAR MEU SCORE AGORA - R$ 14,90
+                    <div style="font-size: 0.9rem; margin-top: 5px;">🕒 Seu novo score pode ser liberado ainda hoje</div>
+                </button>
+
+                <div style="text-align: center; margin-top: 15px; font-size: 0.9rem; color: #666;">
+                    ⚡ Liberação instantânea • 🔒 Pagamento 100% seguro
+                </div>
+            </div>
+        </div>
+
+        <!-- Tela 4: Confirmação Final -->
+        <div id="screen4" class="screen">
+            <div class="success-card">
+                <div class="success-icon">✅</div>
+                <h2>Score Atualizado!</h2>
+                <p>Seu novo score já está ativo no sistema</p>
+            </div>
+            
+            <div class="card">
+                <div class="score-container">
+                    <div class="score-gauge">
+                        <svg viewBox="0 0 200 200">
+                            <circle class="gauge-bg" cx="100" cy="100" r="85"></circle>
+                            <circle class="gauge-fill" cx="100" cy="100" r="85" 
+                                    stroke="#28a745"
+                                    stroke-dasharray="495 534"
+                                    stroke-dashoffset="0">
+                            </circle>
+                        </svg>
+                        <div class="score-inner-content">
+                            <div class="score-number">926</div>
+                            <div class="score-max">de 1000</div>
+                        </div>
+                    </div>
+                    <div class="score-status muito-bom">Score Muito Bom</div>
+                </div>
+                
+                <div class="chart-container">
+                    <h3 style="text-align: center; margin-bottom: 15px; color: #333;">Evolução do Score</h3>
+                    <div class="chart">
+                        <div class="bar" style="--height: 25px;">
+                            278
+                            <div class="bar-label">Anterior</div>
+                        </div>
+                        <div class="bar" style="--height: 100px;">
+                            926
+                            <div class="bar-label">Atual</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="background: #f8f9ff; padding: 15px; border-radius: 8px; margin: 20px 0; text-align: center; font-size: 0.9rem; color: #666;">
+                    💡 Seu novo score será atualizado nos sistemas bancários em até 5 dias úteis
+                </div>
+                
+                <button class="btn btn-success" onclick="downloadReport()">
+                    📄 Baixar Relatório Completo
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentQuestion = 0;
+        let answers = [];
+        let expirationTimer;
+        
+        const questions = [
+            {
+                question: "Com que frequência você paga suas contas em dia?",
+                options: ["Sempre pago em dia", "Às vezes atraso", "Frequentemente atraso"],
+                feedback: ["Excelente! Isso mantém seu score alto.", "Cuidado! Atrasos impactam negativamente.", "Isso está prejudicando muito seu score."],
+                feedbackType: ["success", "warning", "error"]
+            },
+            {
+                question: "Quantos cartões de crédito você possui atualmente?",
+                options: ["Nenhum", "1 a 2 cartões", "3 ou mais cartões"],
+                feedback: ["Sem histórico pode limitar o score.", "Quantidade ideal para construir histórico.", "Muitos cartões podem indicar risco."],
+                feedbackType: ["warning", "success", "error"]
+            },
+            {
+                question: "Você possui alguma pendência financeira?",
+                options: ["Não tenho pendências", "Tenho algumas pendências", "Tenho muitas pendências"],
+                feedback: ["Perfeito! Seu CPF está limpo.", "Isso precisa ser resolvido rapidamente.", "Situação crítica que afeta muito o score."],
+                feedbackType: ["success", "warning", "error"]
+            },
+            {
+                question: "Qual sua experiência com financiamentos?",
+                options: ["Já financiei e paguei tudo", "Nunca financiei nada", "Tenho financiamento em aberto"],
+                feedback: ["Histórico excelente de pagamento!", "Sem histórico dificulta a análise.", "Acompanharemos seu comportamento atual."],
+                feedbackType: ["success", "warning", "success"]
+            }
+        ];
+
+        // Máscara para CPF
+        document.getElementById('cpf').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            value = value.replace(/(\d{3})(\d)/, '$1.$2');
+            value = value.replace(/(\d{3})(\d)/, '$1.$2');
+            value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+            e.target.value = value;
+        });
+
+        // Contador de expiração
+        function startExpirationTimer() {
+            let minutes = 9;
+            let seconds = 58;
+            
+            expirationTimer = setInterval(() => {
+                seconds--;
+                if (seconds < 0) {
+                    minutes--;
+                    seconds = 59;
+                }
+                
+                if (minutes < 0) {
+                    minutes = 9;
+                    seconds = 58;
+                }
+                
+                const timerElement = document.getElementById('expiration-timer');
+                if (timerElement) {
+                    timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                }
+            }, 1000);
+        }
+
+        // Countdown das vagas
+        function startCountdown() {
+            let count = 17;
+            const countdownElement = document.getElementById('countdown');
+            if (countdownElement) {
+                setInterval(() => {
+                    count = Math.max(1, count - Math.floor(Math.random() * 2));
+                    countdownElement.textContent = count;
+                }, 25000); // Atualiza a cada 25 segundos
+            }
+        }
+
+        function startEvaluation() {
+            const cpf = document.getElementById('cpf').value;
+            if (cpf.length < 14) {
+                alert('Por favor, digite um CPF válido!');
+                return;
+            }
+            
+            showScreen('screen2');
+            showQuestion();
+        }
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+            
+            if (screenId === 'screen3') {
+                startCountdown();
+                startExpirationTimer();
+            }
+        }
+
+        function updateStepIndicator() {
+            const steps = document.querySelectorAll('.step');
+            steps.forEach((step, index) => {
+                step.classList.remove('active', 'completed');
+                if (index < currentQuestion) {
+                    step.classList.add('completed');
+                } else if (index === currentQuestion) {
+                    step.classList.add('active');
+                }
+            });
+        }
+
+        function showQuestion() {
+            if (currentQuestion >= questions.length) {
+                showScreen('screen2a');
+                return;
+            }
+
+            updateStepIndicator();
+            
+            const question = questions[currentQuestion];
+            document.getElementById('question-number').textContent = currentQuestion + 1;
+            document.getElementById('current-question').textContent = question.question;
+            
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'btn btn-option';
+                button.textContent = option;
+                button.onclick = () => selectAnswer(index);
+                optionsContainer.appendChild(button);
+            });
+            
+            document.getElementById('feedback').style.display = 'none';
+        }
+
+        function selectAnswer(answerIndex) {
+            answers.push(answerIndex);
+            const question = questions[currentQuestion];
+            const feedback = document.getElementById('feedback');
+            
+            feedback.textContent = question.feedback[answerIndex];
+            feedback.className = `feedback ${question.feedbackType[answerIndex]}`;
+            feedback.style.display = 'block';
+            
+            // Marcar opção selecionada
+            document.querySelectorAll('#options-container .btn').forEach((btn, index) => {
+                btn.disabled = true;
+                if (index === answerIndex) {
+                    btn.classList.add('selected');
+                } else {
+                    btn.style.opacity = '0.5';
+                }
+            });
+            
+            setTimeout(() => {
+                currentQuestion++;
+                showQuestion();
+            }, 2500);
+        }
+
+        function startOptimization() {
+            showScreen('screen2b');
+            runOptimizationSequence();
+        }
+
+        function scrollToBottom(element) {
+            element.scrollTop = element.scrollHeight;
+        }
+
+        function runOptimizationSequence() {
+            const terminal = document.getElementById('optimization-terminal');
+            const terminalContainer = document.getElementById('optimization-terminal-container');
+            const messages = [
+                { text: 'Conectando ao banco de dados do Serasa...', type: 'info', delay: 600 },
+                { text: 'Acesso autorizado. Iniciando varredura...', type: 'success', delay: 800 },
+                { text: 'Rastreando dados financeiros ocultos...', type: 'special', delay: 1000 },
+                { text: 'Encontrados 47 registros para otimização...', type: 'warning', delay: 700 },
+                { text: 'Injetando histórico de crédito positivo...', type: 'special', delay: 1200 },
+                { text: 'Ajustando comportamento de pagamento...', type: 'info', delay: 900 },
+                { text: 'Removendo marcadores negativos...', type: 'success', delay: 800 },
+                { text: 'Preparando aumento de pontuação...', type: 'special', delay: 800 },
+                { text: 'Otimização concluída com sucesso!', type: 'success', delay: 600 }
+            ];
+            
+            let totalDelay = 0;
+            
+            messages.forEach((message, index) => {
+                totalDelay += message.delay;
+                setTimeout(() => {
+                    const line = document.createElement('div');
+                    line.className = `terminal-line ${message.type}`;
+                    line.textContent = message.text;
+                    terminal.appendChild(line);
+                    scrollToBottom(terminalContainer);
+                    
+                    if (index === messages.length - 1) {
+                        setTimeout(() => {
+                            showScreen('screen3'); // Pula direto para tela de score aumentado
+                            startScoreAnimation();
+                        }, 1000);
+                    }
+                }, totalDelay);
+            });
+        }
+
+        function getScoreStatus(score) {
+            if (score < 400) return { text: 'Score Baixo', class: 'baixo' };
+            if (score < 600) return { text: 'Score Regular', class: 'regular' };
+            if (score < 800) return { text: 'Score Bom', class: 'bom' };
+            return { text: 'Score Muito Bom', class: 'muito-bom' };
+        }
+
+        function getScoreColor(score) {
+            if (score < 400) return '#dc3545';
+            if (score < 600) return '#ffc107';
+            if (score < 800) return '#fd7e14';
+            return '#28a745';
+        }
+
+        function updateScoreGauge(score) {
+            const circle = document.getElementById('score-circle');
+            const circumference = 2 * Math.PI * 85; // raio = 85
+            const percentage = score / 1000;
+            const dashArray = (percentage * circumference) + ' ' + circumference;
+            
+            circle.style.strokeDasharray = dashArray;
+            circle.style.stroke = getScoreColor(score);
+        }
+
+        function startScoreAnimation() {
+            const scoreElement = document.getElementById('current-score');
+            const statusElement = document.getElementById('score-status');
+            const progressFill = document.getElementById('progress-fill');
+            const progressPercent = document.getElementById('progress-percent');
+            const messagesContainer = document.getElementById('score-messages');
+            
+            const messages = [
+                'Analisando histórico de pagamentos...',
+                'Otimizando perfil de risco...',
+                'Aplicando algoritmos de melhoria...',
+                'Calculando novo potencial de crédito...'
+            ];
+            
+            let currentScore = 278;
+            let targetScore = 901;
+            let messageIndex = 0;
+            
+            const scoreInterval = setInterval(() => {
+                if (currentScore < targetScore) {
+                    currentScore += Math.floor(Math.random() * 20) + 12;
+                    if (currentScore > targetScore) currentScore = targetScore;
+                    
+                    scoreElement.textContent = currentScore;
+                    updateScoreGauge(currentScore);
+                    
+                    const status = getScoreStatus(currentScore);
+                    statusElement.textContent = status.text;
+                    statusElement.className = `score-status ${status.class}`;
+                    
+                    const percentage = ((currentScore - 278) / (926 - 278)) * 91;
+                    progressFill.style.width = percentage + '%';
+                    progressPercent.textContent = Math.round(percentage) + '%';
+                    
+                    if (messageIndex < messages.length && Math.random() > 0.6) {
+                        const messageDiv = document.createElement('div');
+                        messageDiv.className = 'feedback';
+                        messageDiv.textContent = messages[messageIndex];
+                        messagesContainer.appendChild(messageDiv);
+                        messageIndex++;
+                        
+                        setTimeout(() => {
+                            messageDiv.remove();
+                        }, 2000);
+                    }
+                } else {
+                    clearInterval(scoreInterval);
+                    setTimeout(() => {
+                        document.getElementById('unlock-alert').style.display = 'block';
+                    }, 800);
+                }
+            }, 80);
+        }
+
+        function finalizeUnlock() {
+            // Redireciona diretamente para o link de pagamento
+            window.open('https://go.tribopay.com.br/rivrlkcknq', '_blank');
+        }
+
+        function downloadReport() {
+            alert('📧 Relatório completo enviado para seu email!\n\n✅ Score atualizado: 926\n📊 Análise detalhada incluída\n🎯 Dicas personalizadas de melhoria\n\nObrigado por confiar no Serasa!');
+        }
+    </script>
+</body>
+</html>
